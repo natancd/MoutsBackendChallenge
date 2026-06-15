@@ -49,7 +49,7 @@ public class SaleRepository : ISaleRepository
             .AnyAsync(s => s.Id == sale.Id, cancellationToken);
 
         if (!saleExists)
-            throw new KeyNotFoundException($"Sale with ID {sale.Id} not found");
+            throw new KeyNotFoundException($"The sale with ID '{sale.Id}' was not found.");
 
         var existingItemIds = await _context.SaleItems
             .AsNoTracking()

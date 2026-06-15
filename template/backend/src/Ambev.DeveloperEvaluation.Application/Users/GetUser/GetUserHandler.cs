@@ -43,7 +43,7 @@ public class GetUserHandler : IRequestHandler<GetUserCommand, GetUserResult>
 
         var user = await _userRepository.GetByIdAsync(request.Id, cancellationToken);
         if (user == null)
-            throw new KeyNotFoundException($"User with ID {request.Id} not found");
+            throw new KeyNotFoundException($"The user with ID '{request.Id}' was not found.");
 
         return _mapper.Map<GetUserResult>(user);
     }

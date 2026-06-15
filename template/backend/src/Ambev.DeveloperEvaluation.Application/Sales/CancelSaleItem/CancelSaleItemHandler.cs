@@ -34,11 +34,12 @@ public class CancelSaleItemHandler : IRequestHandler<CancelSaleItemCommand, Sale
 
         var sale = await _saleRepository.GetByIdAsync(request.SaleId, cancellationToken);
         if (sale == null)
-            throw new KeyNotFoundException($"Sale with ID {request.SaleId} not found");
+            throw new KeyNotFoundException($"The sale with ID '{request.SaleId}' was not found.");
 
         var item = sale.Items.FirstOrDefault(i => i.Id == request.ItemId);
         if (item == null)
-            throw new KeyNotFoundException($"Sale item with ID {request.ItemId} not found");
+            throw new KeyNotFoundException(
+                $"The sale item with ID '{request.ItemId}' was not found in sale '{sale.SaleNumber}' (ID {sale.Id}).");
 
         sale.CancelItem(request.ItemId);
         var updatedSale = await _saleRepository.UpdateAsync(sale, cancellationToken);

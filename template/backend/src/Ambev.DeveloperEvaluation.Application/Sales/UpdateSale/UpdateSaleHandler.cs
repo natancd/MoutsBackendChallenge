@@ -35,7 +35,7 @@ public class UpdateSaleHandler : IRequestHandler<UpdateSaleCommand, SaleResultDt
 
         var sale = await _saleRepository.GetByIdAsNoTrackingAsync(command.Id, cancellationToken);
         if (sale == null)
-            throw new KeyNotFoundException($"Sale with ID {command.Id} not found");
+            throw new KeyNotFoundException($"The sale with ID '{command.Id}' was not found.");
 
         var customer = _mapper.Map<ExternalIdentity>(command.Customer);
         var branch = _mapper.Map<ExternalIdentity>(command.Branch);

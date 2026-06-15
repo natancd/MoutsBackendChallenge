@@ -58,6 +58,7 @@ public class SaleTests
 
         var act = () => sale.Cancel();
 
-        act.Should().Throw<Ambev.DeveloperEvaluation.Domain.Exceptions.DomainException>();
+        act.Should().Throw<Ambev.DeveloperEvaluation.Domain.Exceptions.DomainException>()
+            .WithMessage("*SALE-003*");
     }
 }

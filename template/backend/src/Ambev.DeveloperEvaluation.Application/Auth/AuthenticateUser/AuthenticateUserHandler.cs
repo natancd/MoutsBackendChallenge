@@ -29,13 +29,15 @@ namespace Ambev.DeveloperEvaluation.Application.Auth.AuthenticateUser
             
             if (user == null || !_passwordHasher.VerifyPassword(request.Password, user.Password))
             {
-                throw new UnauthorizedAccessException("Invalid credentials");
+                throw new UnauthorizedAccessException(
+                    "Authentication failed. Check your email and password and try again.");
             }
 
             var activeUserSpec = new ActiveUserSpecification();
             if (!activeUserSpec.IsSatisfiedBy(user))
             {
-                throw new UnauthorizedAccessException("User is not active");
+                throw new UnauthorizedAccessException(
+                    "Authentication failed. The account is inactive or suspended.");
             }
 
             var token = _jwtTokenGenerator.GenerateToken(user);

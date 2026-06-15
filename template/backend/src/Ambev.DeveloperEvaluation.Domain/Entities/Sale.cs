@@ -56,7 +56,8 @@ public class Sale : BaseEntity
         IEnumerable<(Guid ProductId, string ProductName, int Quantity, decimal UnitPrice)> items)
     {
         if (IsCancelled)
-            throw new DomainException("Cannot update a cancelled sale.");
+            throw new DomainException(
+                $"Cannot update sale '{SaleNumber}' (ID {Id}) because it is already cancelled.");
 
         SaleDate = saleDate;
         CustomerId = customer.Id;
@@ -72,7 +73,7 @@ public class Sale : BaseEntity
     public void Cancel()
     {
         if (IsCancelled)
-            throw new DomainException("Sale is already cancelled.");
+            throw new DomainException($"Sale '{SaleNumber}' (ID {Id}) is already cancelled.");
 
         IsCancelled = true;
         CancelledAt = DateTime.UtcNow;
@@ -82,10 +83,12 @@ public class Sale : BaseEntity
     public void CancelItem(Guid itemId)
     {
         if (IsCancelled)
-            throw new DomainException("Cannot cancel items on a cancelled sale.");
+            throw new DomainException(
+                $"Cannot cancel items on cancelled sale '{SaleNumber}' (ID {Id}).");
 
         var item = Items.FirstOrDefault(i => i.Id == itemId)
-            ?? throw new DomainException($"Sale item with ID {itemId} was not found.");
+            ?? throw new DomainException(
+                $"Sale item with ID '{itemId}' was not found in sale '{SaleNumber}' (ID {Id}).");
 
         item.Cancel();
         RecalculateTotalAmount();
@@ -97,11 +100,15 @@ public class Sale : BaseEntity
         var itemList = items.ToList();
 
         if (itemList.Count == 0)
-            throw new DomainException("Sale must contain at least one item.");
+            throw new DomainException(
+                $"Sale '{SaleNumber}' (ID {Id}) must contain at least one item.");
 
         Items = itemList
             .Select(i => SaleItem.Create(i.ProductId, i.ProductName, i.Quantity, i.UnitPrice))
             .ToList();
+
+        foreach (var item in Items)
+            item.SaleId = Id;
     }
 
     public void RecalculateTotalAmount()

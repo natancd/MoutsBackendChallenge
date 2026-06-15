@@ -36,7 +36,8 @@ public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, SaleResultDt
 
         var existingSale = await _saleRepository.GetBySaleNumberAsync(command.SaleNumber, cancellationToken);
         if (existingSale != null)
-            throw new InvalidOperationException($"Sale with number {command.SaleNumber} already exists");
+            throw new InvalidOperationException(
+                $"A sale with number '{command.SaleNumber}' already exists (ID {existingSale.Id}).");
 
         var customer = _mapper.Map<ExternalIdentity>(command.Customer);
         var branch = _mapper.Map<ExternalIdentity>(command.Branch);

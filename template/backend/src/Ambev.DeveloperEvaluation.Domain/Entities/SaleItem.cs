@@ -23,13 +23,16 @@ public class SaleItem : BaseEntity
     public static SaleItem Create(Guid productId, string productName, int quantity, decimal unitPrice)
     {
         if (quantity > 20)
-            throw new DomainException("Cannot sell more than 20 identical items of the same product.");
+            throw new DomainException(
+                $"Cannot sell more than 20 identical items of product '{productName}' (ID {productId}); requested quantity: {quantity}.");
 
         if (quantity <= 0)
-            throw new DomainException("Item quantity must be greater than zero.");
+            throw new DomainException(
+                $"Item quantity must be greater than zero for product '{productName}' (ID {productId}); received: {quantity}.");
 
         if (unitPrice <= 0)
-            throw new DomainException("Unit price must be greater than zero.");
+            throw new DomainException(
+                $"Unit price must be greater than zero for product '{productName}' (ID {productId}); received: {unitPrice}.");
 
         var discountPercentage = CalculateDiscountPercentage(quantity);
         var totalAmount = CalculateTotalAmount(quantity, unitPrice, discountPercentage);
@@ -49,16 +52,20 @@ public class SaleItem : BaseEntity
     public void Update(int quantity, decimal unitPrice)
     {
         if (IsCancelled)
-            throw new DomainException("Cannot update a cancelled item.");
+            throw new DomainException(
+                $"Cannot update cancelled item '{ProductName}' (item ID {Id}, product ID {ProductId}) on sale ID {SaleId}.");
 
         if (quantity > 20)
-            throw new DomainException("Cannot sell more than 20 identical items of the same product.");
+            throw new DomainException(
+                $"Cannot sell more than 20 identical items of product '{ProductName}' (ID {ProductId}); requested quantity: {quantity}.");
 
         if (quantity <= 0)
-            throw new DomainException("Item quantity must be greater than zero.");
+            throw new DomainException(
+                $"Item quantity must be greater than zero for product '{ProductName}' (ID {ProductId}); received: {quantity}.");
 
         if (unitPrice <= 0)
-            throw new DomainException("Unit price must be greater than zero.");
+            throw new DomainException(
+                $"Unit price must be greater than zero for product '{ProductName}' (ID {ProductId}); received: {unitPrice}.");
 
         Quantity = quantity;
         UnitPrice = unitPrice;
@@ -69,7 +76,8 @@ public class SaleItem : BaseEntity
     public void Cancel()
     {
         if (IsCancelled)
-            throw new DomainException("Item is already cancelled.");
+            throw new DomainException(
+                $"Item '{ProductName}' (item ID {Id}) is already cancelled on sale ID {SaleId}.");
 
         IsCancelled = true;
         CancelledAt = DateTime.UtcNow;
