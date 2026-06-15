@@ -1,3 +1,4 @@
+using Ambev.DeveloperEvaluation.Application.Auth.AuthenticateUser;
 using AutoMapper;
 using Ambev.DeveloperEvaluation.Domain.Entities;
 
@@ -13,8 +14,12 @@ public sealed class AuthenticateUserProfile : Profile
     /// </summary>
     public AuthenticateUserProfile()
     {
+        CreateMap<AuthenticateUserRequest, AuthenticateUserCommand>();
+        CreateMap<AuthenticateUserResult, AuthenticateUserResponse>();
+
         CreateMap<User, AuthenticateUserResponse>()
             .ForMember(dest => dest.Token, opt => opt.Ignore())
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Username))
             .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.ToString()));
     }
 }

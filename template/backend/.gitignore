@@ -1,0 +1,36 @@
+## bin / obj
+**/bin/
+**/obj/
+
+## SQLite local (se usar arquivo na pasta do projeto)
+*.db
+*.db-shm
+*.db-wal
+
+## IDE
+.vs/
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+.idea/
+*.user
+*.suo
+
+## Logs
+logs/
+*.log
+
+## OS
+Thumbs.db
+.DS_Store
+
+## Secrets
+**/appsettings.*.local.json
+secrets.json
+
+## Test results
+TestResults/
+coverage/
+
+## Docker
+.docker/

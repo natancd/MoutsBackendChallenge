@@ -12,9 +12,9 @@ using Serilog;
 
 namespace Ambev.DeveloperEvaluation.WebApi;
 
-public class Program
+public partial class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         try
         {
@@ -30,11 +30,25 @@ public class Program
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddDbContext<DefaultContext>(options =>
-                options.UseNpgsql(
-                    builder.Configuration.GetConnectionString("DefaultConnection"),
-                    b => b.MigrationsAssembly("Ambev.DeveloperEvaluation.ORM")
-                )
-            );
+            {
+                if (builder.Environment.IsDevelopment())
+                {
+                    var databaseDirectory = Path.Combine(
+                        Path.GetTempPath(),
+                        "Ambev.DeveloperEvaluation");
+
+                    Directory.CreateDirectory(databaseDirectory);
+
+                    var databasePath = Path.Combine(databaseDirectory, "devevaluation.db");
+                    options.UseSqlite($"Data Source={databasePath}");
+                }
+                else
+                {
+                    options.UseNpgsql(
+                        builder.Configuration.GetConnectionString("DefaultConnection"),
+                        b => b.MigrationsAssembly("Ambev.DeveloperEvaluation.ORM"));
+                }
+            });
 
             builder.Services.AddJwtAuthentication(builder.Configuration);
 
@@ -52,16 +66,43 @@ public class Program
 
             builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
+            if (builder.Environment.IsDevelopment())
+            {
+                builder.Services.AddCors(options =>
+                {
+                    options.AddDefaultPolicy(policy =>
+                        policy.AllowAnyOrigin()
+                              .AllowAnyHeader()
+                              .AllowAnyMethod());
+                });
+            }
+
             var app = builder.Build();
+
+            await DatabaseInitializer.InitializeAsync(app);
+
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
             app.UseMiddleware<ValidationExceptionMiddleware>();
 
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(options =>
+                {
+                    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Developer Evaluation API v1");
+                    options.RoutePrefix = "swagger";
+                });
+
+                app.MapGet("/", () => Results.Redirect("/swagger"))
+                    .ExcludeFromDescription();
+
+                app.UseCors();
             }
 
-            app.UseHttpsRedirection();
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseHttpsRedirection();
+            }
 
             app.UseAuthentication();
             app.UseAuthorization();
@@ -70,7 +111,7 @@ public class Program
 
             app.MapControllers();
 
-            app.Run();
+            await app.RunAsync();
         }
         catch (Exception ex)
         {
@@ -82,3 +123,5 @@ public class Program
         }
     }
 }
+
+public partial class Program { }
