@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
 using FluentValidation;
+using FluentValidation.Results;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
 using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Common.Security;
@@ -45,7 +46,15 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
 
         var existingUser = await _userRepository.GetByEmailAsync(command.Email, cancellationToken);
         if (existingUser != null)
-            throw new InvalidOperationException($"User with email {command.Email} already exists");
+        {
+            throw new ValidationException(new[]
+            {
+                new ValidationFailure(nameof(command.Email), "Invalid email address")
+                {
+                    ErrorCode = "InvalidEmail"
+                }
+            });
+        }
 
         var user = _mapper.Map<User>(command);
         user.Password = _passwordHasher.HashPassword(command.Password);

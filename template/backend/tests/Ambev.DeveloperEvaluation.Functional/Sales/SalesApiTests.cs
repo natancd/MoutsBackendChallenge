@@ -127,6 +127,14 @@ public class SalesApiTests : IClassFixture<CustomWebApplicationFactory>
 
         var body = await response.ReadApiResponseAsync<SaleResponse>();
         body!.Data!.TotalAmount.Should().Be(36.00m);
+        body.Data.Items.Should().ContainSingle();
+        body.Data.Items[0].ProductName.Should().Be("Produto B");
+        body.Data.Items[0].Quantity.Should().Be(4);
+
+        var getResponse = await _client.GetAsync($"/api/Sales/{created.Id}");
+        var persisted = await getResponse.ReadApiDataAsync<SaleResponse>();
+        persisted!.Items[0].ProductName.Should().Be("Produto B");
+        persisted.TotalAmount.Should().Be(36.00m);
     }
 
     [Fact(DisplayName = "PATCH /api/Sales/{id}/cancel - 200 OK ao cancelar venda")]

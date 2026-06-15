@@ -160,4 +160,20 @@ public class CreateUserHandlerTests
             c.Status == command.Status &&
             c.Role == command.Role));
     }
+
+    [Fact(DisplayName = "Given duplicate email When creating user Then throws validation exception with generic message")]
+    public async Task Handle_DuplicateEmail_ThrowsValidationException()
+    {
+        var command = CreateUserHandlerTestData.GenerateValidCommand();
+        _userRepository.GetByEmailAsync(command.Email, Arg.Any<CancellationToken>())
+            .Returns(new User { Email = command.Email });
+
+        var act = () => _handler.Handle(command, CancellationToken.None);
+
+        var exception = await act.Should().ThrowAsync<FluentValidation.ValidationException>();
+        exception.Which.Errors.Should().Contain(e =>
+            e.PropertyName == nameof(command.Email) &&
+            e.ErrorMessage == "Invalid email address");
+        await _userRepository.DidNotReceive().CreateAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
+    }
 }

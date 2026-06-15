@@ -44,14 +44,66 @@ public class SaleRepository : ISaleRepository
 
     public async Task<Sale> UpdateAsync(Sale sale, CancellationToken cancellationToken = default)
     {
+        var saleExists = await _context.Sales
+            .AsNoTracking()
+            .AnyAsync(s => s.Id == sale.Id, cancellationToken);
+
+        if (!saleExists)
+            throw new KeyNotFoundException($"Sale with ID {sale.Id} not found");
+
+        var existingItemIds = await _context.SaleItems
+            .AsNoTracking()
+            .Where(i => i.SaleId == sale.Id)
+            .Select(i => i.Id)
+            .ToListAsync(cancellationToken);
+
+        var isFullItemReplace = !sale.Items.Any(i => existingItemIds.Contains(i.Id));
+
+        if (isFullItemReplace)
+        {
+            await _context.Sales
+                .Where(s => s.Id == sale.Id)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(s => s.SaleDate, sale.SaleDate)
+                    .SetProperty(s => s.CustomerId, sale.CustomerId)
+                    .SetProperty(s => s.CustomerName, sale.CustomerName)
+                    .SetProperty(s => s.BranchId, sale.BranchId)
+                    .SetProperty(s => s.BranchName, sale.BranchName)
+                    .SetProperty(s => s.TotalAmount, sale.TotalAmount)
+                    .SetProperty(s => s.IsCancelled, sale.IsCancelled)
+                    .SetProperty(s => s.CancelledAt, sale.CancelledAt)
+                    .SetProperty(s => s.UpdatedAt, sale.UpdatedAt),
+                cancellationToken);
+
+            await _context.SaleItems
+                .Where(i => i.SaleId == sale.Id)
+                .ExecuteDeleteAsync(cancellationToken);
+
+            foreach (var item in sale.Items)
+            {
+                await _context.SaleItems.AddAsync(new SaleItem
+                {
+                    SaleId = sale.Id,
+                    ProductId = item.ProductId,
+                    ProductName = item.ProductName,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice,
+                    DiscountPercentage = item.DiscountPercentage,
+                    TotalAmount = item.TotalAmount,
+                    IsCancelled = item.IsCancelled,
+                    CancelledAt = item.CancelledAt
+                }, cancellationToken);
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
+            return (await GetByIdAsync(sale.Id, cancellationToken))!;
+        }
+
         var existingSale = await _context.Sales
             .Include(s => s.Items)
             .FirstOrDefaultAsync(s => s.Id == sale.Id, cancellationToken);
 
-        if (existingSale == null)
-            throw new KeyNotFoundException($"Sale with ID {sale.Id} not found");
-
-        existingSale.SaleDate = sale.SaleDate;
+        existingSale!.SaleDate = sale.SaleDate;
         existingSale.CustomerId = sale.CustomerId;
         existingSale.CustomerName = sale.CustomerName;
         existingSale.BranchId = sale.BranchId;
@@ -61,48 +113,20 @@ public class SaleRepository : ISaleRepository
         existingSale.CancelledAt = sale.CancelledAt;
         existingSale.UpdatedAt = sale.UpdatedAt;
 
-        var isFullReplace = sale.Items.All(i => i.Id == Guid.Empty);
-
-        if (isFullReplace)
+        foreach (var incomingItem in sale.Items)
         {
-            foreach (var existingItem in existingSale.Items.ToList())
-                _context.SaleItems.Remove(existingItem);
+            var existingItem = existingSale.Items.FirstOrDefault(i => i.Id == incomingItem.Id);
+            if (existingItem == null)
+                continue;
 
-            existingSale.Items.Clear();
-
-            foreach (var item in sale.Items)
-            {
-                existingSale.Items.Add(new SaleItem
-                {
-                    SaleId = existingSale.Id,
-                    ProductId = item.ProductId,
-                    ProductName = item.ProductName,
-                    Quantity = item.Quantity,
-                    UnitPrice = item.UnitPrice,
-                    DiscountPercentage = item.DiscountPercentage,
-                    TotalAmount = item.TotalAmount,
-                    IsCancelled = item.IsCancelled,
-                    CancelledAt = item.CancelledAt
-                });
-            }
-        }
-        else
-        {
-            foreach (var incomingItem in sale.Items)
-            {
-                var existingItem = existingSale.Items.FirstOrDefault(i => i.Id == incomingItem.Id);
-                if (existingItem == null)
-                    continue;
-
-                existingItem.ProductId = incomingItem.ProductId;
-                existingItem.ProductName = incomingItem.ProductName;
-                existingItem.Quantity = incomingItem.Quantity;
-                existingItem.UnitPrice = incomingItem.UnitPrice;
-                existingItem.DiscountPercentage = incomingItem.DiscountPercentage;
-                existingItem.TotalAmount = incomingItem.TotalAmount;
-                existingItem.IsCancelled = incomingItem.IsCancelled;
-                existingItem.CancelledAt = incomingItem.CancelledAt;
-            }
+            existingItem.ProductId = incomingItem.ProductId;
+            existingItem.ProductName = incomingItem.ProductName;
+            existingItem.Quantity = incomingItem.Quantity;
+            existingItem.UnitPrice = incomingItem.UnitPrice;
+            existingItem.DiscountPercentage = incomingItem.DiscountPercentage;
+            existingItem.TotalAmount = incomingItem.TotalAmount;
+            existingItem.IsCancelled = incomingItem.IsCancelled;
+            existingItem.CancelledAt = incomingItem.CancelledAt;
         }
 
         await _context.SaveChangesAsync(cancellationToken);

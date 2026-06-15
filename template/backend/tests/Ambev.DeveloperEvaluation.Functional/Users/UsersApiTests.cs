@@ -59,6 +59,24 @@ public class UsersApiTests : IClassFixture<CustomWebApplicationFactory>
         body.Data.Should().NotBeNull();
     }
 
+    [Fact(DisplayName = "POST /api/Users - 400 com email duplicado (mensagem genérica)")]
+    public async Task CreateUser_DuplicateEmail_ReturnsGenericError()
+    {
+        var request = ApiTestData.ValidUserRequest();
+        await _client.PostAsJsonAsync("/api/Users", request);
+
+        var duplicateRequest = ApiTestData.ValidUserRequest();
+        duplicateRequest.Email = request.Email;
+
+        var response = await _client.PostAsJsonAsync("/api/Users", duplicateRequest);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        var body = await response.Content.ReadAsStringAsync();
+        body.Should().Contain("Invalid email address");
+        body.Should().NotContain("already exists");
+    }
+
     [Fact(DisplayName = "GET /api/Users/{id} - 200 OK quando usuário existe")]
     public async Task GetUser_ExistingUser_ReturnsOk()
     {

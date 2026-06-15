@@ -14,6 +14,8 @@ public class UpdateSaleCommandValidator : AbstractValidator<UpdateSaleCommand>
         RuleFor(x => x.Customer.Name).NotEmpty().MaximumLength(200);
         RuleFor(x => x.Branch.Id).NotEmpty();
         RuleFor(x => x.Branch.Name).NotEmpty().MaximumLength(200);
+        RuleFor(x => x).Must(x => x.Customer.Id != x.Branch.Id)
+            .WithMessage("Customer and branch must be different external identities.");
         RuleFor(x => x.Items).NotEmpty();
         RuleForEach(x => x.Items).SetValidator(new SaleItemCommandDtoValidator());
     }
