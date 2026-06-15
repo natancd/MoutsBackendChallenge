@@ -123,7 +123,7 @@ Para produção com PostgreSQL, ajuste `ConnectionStrings:DefaultConnection` em 
 
 | Recurso | Métodos |
 |---------|---------|
-| **Users** | `POST`, `GET /{id}`, `DELETE /{id}` |
+| **Users** | `POST`, `GET`, `GET /{id}`, `DELETE /{id}` |
 | **Auth** | `POST` |
 | **Sales** | `POST`, `GET`, `GET /{id}`, `PUT /{id}`, `DELETE /{id}`, `PATCH /{id}/cancel`, `PATCH /{saleId}/items/{itemId}/cancel` |
 

@@ -6,8 +6,9 @@ using Ambev.DeveloperEvaluation.WebApi.Features.Users.CreateUser;
 using Ambev.DeveloperEvaluation.WebApi.Features.Users.GetUser;
 using Ambev.DeveloperEvaluation.WebApi.Features.Users.DeleteUser;
 using Ambev.DeveloperEvaluation.Application.Users.CreateUser;
-using Ambev.DeveloperEvaluation.Application.Users.GetUser;
 using Ambev.DeveloperEvaluation.Application.Users.DeleteUser;
+using Ambev.DeveloperEvaluation.Application.Users.GetUser;
+using Ambev.DeveloperEvaluation.Application.Users.ListUsers;
 
 namespace Ambev.DeveloperEvaluation.WebApi.Features.Users;
 
@@ -58,6 +59,44 @@ public class UsersController : BaseController
             Message = "User created successfully",
             Data = _mapper.Map<CreateUserResponse>(response)
         });
+    }
+
+    /// <summary>
+    /// Retrieves a paginated list of users
+    /// </summary>
+    [HttpGet]
+    [ProducesResponseType(typeof(PaginatedResponse<GetUserResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ListUsers(
+        [FromQuery(Name = "_page")] int page = 1,
+        [FromQuery(Name = "_size")] int pageSize = 10,
+        [FromQuery(Name = "_order")] string? order = null,
+        CancellationToken cancellationToken = default)
+    {
+        var orderDescending = false;
+        var orderBy = order;
+
+        if (!string.IsNullOrWhiteSpace(order))
+        {
+            order = order.Trim().Trim('"');
+            if (order.Contains(" desc", StringComparison.OrdinalIgnoreCase))
+                orderDescending = true;
+            orderBy = order;
+        }
+
+        var query = new ListUsersQuery
+        {
+            Page = page,
+            PageSize = pageSize,
+            OrderBy = orderBy,
+            OrderDescending = orderDescending
+        };
+
+        var result = await _mediator.Send(query, cancellationToken);
+        var mappedItems = _mapper.Map<List<GetUserResponse>>(result.Items);
+        var paginatedList = new PaginatedList<GetUserResponse>(mappedItems, result.TotalCount, result.Page, result.PageSize);
+
+        return OkPaginated(paginatedList);
     }
 
     /// <summary>

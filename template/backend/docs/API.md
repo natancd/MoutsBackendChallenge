@@ -179,6 +179,59 @@ Invoke-RestMethod -Method Post -Uri "http://localhost:5119/api/Users" -Body $bod
 
 ---
 
+### GET `/api/Users` — Listar usuários (paginado)
+
+**Status:** `200 OK`
+
+**Query params:**
+
+| Parâmetro | Descrição | Padrão |
+|-----------|-----------|--------|
+| `_page` | Número da página | 1 |
+| `_size` | Itens por página | 10 |
+| `_order` | Ordenação, ex: `username asc, email desc` | `username` asc |
+
+Campos de ordenação suportados: `username`, `email`, `phone`, `status`, `role`, `createdAt`.
+
+**Exemplo:**
+
+```bash
+curl "http://localhost:5119/api/Users?_page=1&_size=10&_order=username%20asc"
+```
+
+**Resposta 200:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "name": "natan-dev",
+      "email": "natan@exemplo.com",
+      "phone": "+5511999999999",
+      "role": 1,
+      "status": 1
+    }
+  ],
+  "currentPage": 1,
+  "totalPages": 1,
+  "totalCount": 2,
+  "message": "",
+  "errors": []
+}
+```
+
+> Na especificação original, `totalCount` corresponde a `totalItems`.
+
+**Erros:**
+
+| Cenário | Status | Formato |
+|---------|--------|---------|
+| `_page` ou `_size` inválidos | 400 | Validação |
+
+---
+
 ### GET `/api/Users/{id}` — Buscar usuário
 
 **Status:** `200 OK`
@@ -601,6 +654,7 @@ dotnet test tests\Ambev.DeveloperEvaluation.Functional --filter "DisplayName~Aut
 |-------|----------|--------|--------------------------|
 | `CreateUser_ValidRequest_ReturnsCreated` | `POST /api/Users` | 201 | — |
 | `CreateUser_InvalidRequest_ReturnsBadRequest` | `POST /api/Users` | 400 | Validação |
+| `ListUsers_ReturnsPaginatedResult` | `GET /api/Users` | 200 | — |
 | `GetUser_ExistingUser_ReturnsOk` | `GET /api/Users/{id}` | 200 | — |
 | `GetUser_NotFound_Returns404` | `GET /api/Users/{id}` | 404 | `ResourceNotFound` |
 | `DeleteUser_ExistingUser_ReturnsOk` | `DELETE /api/Users/{id}` | 200 | — |
