@@ -1,6 +1,7 @@
 using Ambev.DeveloperEvaluation.Application;
 using Ambev.DeveloperEvaluation.WebApi;
 using AutoMapper;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace Ambev.DeveloperEvaluation.Unit.Application;
@@ -14,7 +15,7 @@ public class AutoMapperConfigurationTests
         {
             cfg.AddMaps(typeof(ApplicationLayer).Assembly);
             cfg.AddMaps(typeof(Program).Assembly);
-        });
+        }, NullLoggerFactory.Instance);
 
         configuration.AssertConfigurationIsValid();
     }

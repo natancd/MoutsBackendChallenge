@@ -116,7 +116,7 @@ public class SaleRepository : ISaleRepository
         foreach (var incomingItem in sale.Items)
         {
             var existingItem = existingSale.Items.FirstOrDefault(i => i.Id == incomingItem.Id);
-            if (existingItem == null)
+                if (existingItem is null)
                 continue;
 
             existingItem.ProductId = incomingItem.ProductId;
@@ -136,7 +136,7 @@ public class SaleRepository : ISaleRepository
     public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var sale = await GetByIdAsync(id, cancellationToken);
-        if (sale == null)
+        if (sale is null)
             return false;
 
         _context.Sales.Remove(sale);
@@ -227,7 +227,7 @@ public class SaleRepository : ISaleRepository
         System.Linq.Expressions.Expression<Func<Sale, TKey>> keySelector,
         bool descending)
     {
-        if (orderedQuery == null)
+        if (orderedQuery is null)
             return descending ? query.OrderByDescending(keySelector) : query.OrderBy(keySelector);
 
         return descending

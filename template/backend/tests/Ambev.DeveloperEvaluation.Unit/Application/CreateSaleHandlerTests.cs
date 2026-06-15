@@ -81,8 +81,8 @@ public class CreateSaleHandlerTests
                 Id = Guid.NewGuid(),
                 Name = _faker.Company.CompanyName()
             },
-            Items = new List<SaleItemCommandDto>
-            {
+            Items =
+            [
                 new()
                 {
                     ProductId = Guid.NewGuid(),
@@ -90,7 +90,7 @@ public class CreateSaleHandlerTests
                     Quantity = 4,
                     UnitPrice = 25m
                 }
-            }
+            ]
         };
     }
 }

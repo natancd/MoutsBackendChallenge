@@ -65,7 +65,7 @@ public class UserRepository : IUserRepository
     public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var user = await GetByIdAsync(id, cancellationToken);
-        if (user == null)
+        if (user is null)
             return false;
 
         _context.Users.Remove(user);
@@ -133,7 +133,7 @@ public class UserRepository : IUserRepository
         System.Linq.Expressions.Expression<Func<User, TKey>> keySelector,
         bool descending)
     {
-        if (orderedQuery == null)
+        if (orderedQuery is null)
             return descending ? query.OrderByDescending(keySelector) : query.OrderBy(keySelector);
 
         return descending

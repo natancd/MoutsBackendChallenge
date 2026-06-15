@@ -12,11 +12,11 @@ public class SaleTests
     {
         var customer = new ExternalIdentity(Guid.NewGuid(), "Customer A");
         var branch = new ExternalIdentity(Guid.NewGuid(), "Branch A");
-        var items = new[]
-        {
+        (Guid, string, int, decimal)[] items =
+        [
             (Guid.NewGuid(), "Product A", 2, 100m),
             (Guid.NewGuid(), "Product B", 10, 50m)
-        };
+        ];
 
         var sale = Sale.Create("SALE-001", DateTime.UtcNow, customer, branch, items);
 
@@ -31,11 +31,11 @@ public class SaleTests
         var customer = new ExternalIdentity(Guid.NewGuid(), "Customer A");
         var branch = new ExternalIdentity(Guid.NewGuid(), "Branch A");
         var productId = Guid.NewGuid();
-        var items = new[]
-        {
+        (Guid, string, int, decimal)[] items =
+        [
             (productId, "Product A", 2, 100m),
             (Guid.NewGuid(), "Product B", 4, 50m)
-        };
+        ];
 
         var sale = Sale.Create("SALE-002", DateTime.UtcNow, customer, branch, items);
         var itemToCancel = sale.Items.First(i => i.ProductId == productId);
@@ -51,7 +51,7 @@ public class SaleTests
     {
         var customer = new ExternalIdentity(Guid.NewGuid(), "Customer A");
         var branch = new ExternalIdentity(Guid.NewGuid(), "Branch A");
-        var items = new[] { (Guid.NewGuid(), "Product A", 1, 10m) };
+        (Guid, string, int, decimal)[] items = [(Guid.NewGuid(), "Product A", 1, 10m)];
         var sale = Sale.Create("SALE-003", DateTime.UtcNow, customer, branch, items);
 
         sale.Cancel();

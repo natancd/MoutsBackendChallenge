@@ -18,7 +18,7 @@ public class ListSalesQuery : IRequest<ListSalesResult>
 
 public class ListSalesResult
 {
-    public List<SaleResultDto> Items { get; set; } = new();
+    public List<SaleResultDto> Items { get; set; } = [];
     public int TotalCount { get; set; }
     public int Page { get; set; }
     public int PageSize { get; set; }

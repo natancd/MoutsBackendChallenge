@@ -39,5 +39,5 @@ public class SaleResultDto
     public bool IsCancelled { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
-    public List<SaleItemResultDto> Items { get; set; } = new();
+    public List<SaleItemResultDto> Items { get; set; } = [];
 }

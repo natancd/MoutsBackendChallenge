@@ -26,7 +26,7 @@ public class GetSaleHandler : IRequestHandler<GetSaleCommand, SaleResultDto>
             throw new ValidationException(validationResult.Errors);
 
         var sale = await _saleRepository.GetByIdAsync(request.Id, cancellationToken);
-        if (sale == null)
+        if (sale is null)
             throw new KeyNotFoundException($"The sale with ID '{request.Id}' was not found.");
 
         return _mapper.Map<SaleResultDto>(sale);

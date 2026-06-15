@@ -39,5 +39,5 @@ public class SaleResponse
     public bool IsCancelled { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
-    public List<SaleItemResponse> Items { get; set; } = new();
+    public List<SaleItemResponse> Items { get; set; } = [];
 }

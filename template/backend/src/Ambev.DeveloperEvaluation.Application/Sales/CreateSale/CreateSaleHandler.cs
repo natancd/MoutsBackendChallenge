@@ -35,7 +35,7 @@ public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, SaleResultDt
             throw new ValidationException(validationResult.Errors);
 
         var existingSale = await _saleRepository.GetBySaleNumberAsync(command.SaleNumber, cancellationToken);
-        if (existingSale != null)
+        if (existingSale is not null)
             throw new InvalidOperationException(
                 $"A sale with number '{command.SaleNumber}' already exists (ID {existingSale.Id}).");
 

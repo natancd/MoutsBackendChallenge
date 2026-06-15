@@ -9,5 +9,5 @@ public class CreateSaleCommand : IRequest<SaleResultDto>
     public DateTime SaleDate { get; set; }
     public ExternalIdentityCommandDto Customer { get; set; } = new();
     public ExternalIdentityCommandDto Branch { get; set; } = new();
-    public List<SaleItemCommandDto> Items { get; set; } = new();
+    public List<SaleItemCommandDto> Items { get; set; } = [];
 }

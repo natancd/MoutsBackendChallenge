@@ -8,5 +8,5 @@ public class CreateSaleRequest
     public DateTime SaleDate { get; set; }
     public ExternalIdentityRequest Customer { get; set; } = new();
     public ExternalIdentityRequest Branch { get; set; } = new();
-    public List<SaleItemRequest> Items { get; set; } = new();
+    public List<SaleItemRequest> Items { get; set; } = [];
 }

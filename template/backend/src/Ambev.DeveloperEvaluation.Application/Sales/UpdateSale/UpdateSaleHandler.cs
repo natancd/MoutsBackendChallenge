@@ -33,10 +33,7 @@ public class UpdateSaleHandler : IRequestHandler<UpdateSaleCommand, SaleResultDt
         if (!validationResult.IsValid)
             throw new ValidationException(validationResult.Errors);
 
-        var sale = await _saleRepository.GetByIdAsNoTrackingAsync(command.Id, cancellationToken);
-        if (sale == null)
-            throw new KeyNotFoundException($"The sale with ID '{command.Id}' was not found.");
-
+        var sale = await _saleRepository.GetByIdAsNoTrackingAsync(command.Id, cancellationToken) ?? throw new KeyNotFoundException($"The sale with ID '{command.Id}' was not found.");
         var customer = _mapper.Map<ExternalIdentity>(command.Customer);
         var branch = _mapper.Map<ExternalIdentity>(command.Branch);
         var items = command.Items.Select(i => (i.ProductId, i.ProductName, i.Quantity, i.UnitPrice));

@@ -45,15 +45,15 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
             throw new ValidationException(validationResult.Errors);
 
         var existingUser = await _userRepository.GetByEmailAsync(command.Email, cancellationToken);
-        if (existingUser != null)
+        if (existingUser is not null)
         {
-            throw new ValidationException(new[]
-            {
+            throw new ValidationException(
+            [
                 new ValidationFailure(nameof(command.Email), "Invalid email address")
                 {
                     ErrorCode = "InvalidEmail"
                 }
-            });
+            ]);
         }
 
         var user = _mapper.Map<User>(command);

@@ -13,10 +13,8 @@ public class BaseEntity : IComparable<BaseEntity>
 
     public int CompareTo(BaseEntity? other)
     {
-        if (other == null)
-        {
+        if (other is null)
             return 1;
-        }
 
         return other!.Id.CompareTo(Id);
     }
